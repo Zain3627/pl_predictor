@@ -15,8 +15,8 @@ def data_fetching():
     Returns: None    
     """
     try:
-        previous_matches = fetch_data()
-        previous_matches = clean_data(previous_matches)
+        previous_matches, fixtures_df = fetch_data()
+        previous_matches = clean_data(previous_matches, fixtures_df)
     except Exception as e:
         logger.error(e)
         raise e
