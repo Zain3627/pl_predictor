@@ -16,7 +16,7 @@ def data_fetching():
     """
     try:
         previous_matches, fixtures_df = fetch_data()
-        previous_matches = clean_data(previous_matches, fixtures_df)
+        X_train, X_test, Y_train, Y_test, fixtures = clean_data(previous_matches, fixtures_df)
     except Exception as e:
         logger.error(e)
         raise e

@@ -2,6 +2,8 @@ import numpy as np
 import pandas as pd
 from zenml.logger import get_logger
 from sklearn.model_selection import train_test_split
+from typing import Tuple
+from typing_extensions import Annotated
 
 logger = get_logger(__name__)
 
@@ -12,7 +14,13 @@ class DataCleaning:
     def __init__(self):
         pass
 
-    def clean_data(self, data:pd.DataFrame, fixtures:pd.DataFrame) -> pd.DataFrame:
+    def clean_data(self, data:pd.DataFrame, fixtures:pd.DataFrame) -> Tuple[
+        Annotated[pd.DataFrame,'X_train'], 
+        Annotated[pd.DataFrame,'X_test'],
+        Annotated[pd.Series,'Y_train'],
+        Annotated[pd.Series,'Y_test'],
+        Annotated[pd.DataFrame,'fixtures'],
+        ]:
         """
         Clean raw data
         
@@ -21,7 +29,11 @@ class DataCleaning:
         fixtures:pd.DataFrame raw data for upcoming fixtures for the 2026 season
 
         Returns: 
-        data:pd.DataFrame cleaned data for matches from 2023 to 2026
+        X_train:pd.DataFrame training features for matches from 2023 to 2026
+        X_test:pd.DataFrame testing features for matches from 2023 to 2026
+        Y_train:pd.Series target variable for matches from 2023 to 2026
+        Y_test:pd.Series target variable for matches from 2023 to 2026
+        fixtures:pd.DataFrame cleaned data for upcoming fixtures for the 2026 season
         """
         data.drop([
             'Div', 'Date', 'Time', 'Referee', 'HTHG', 'HTAG', 'HTR', 'HY', 'AY', 'HTHG', 'HTAG'
@@ -98,9 +110,9 @@ class DataCleaning:
         Y = data['FTR']
         Y = Y.map({'H': 0, 'D': 1, 'A': 2})
         X = data.drop('FTR', axis=1)
-        X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.2, random_state=27, stratify=X['season'])
+        X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=27, stratify=X['season'])
         X_train.drop('season', axis=1, inplace=True)
         X_test.drop('season', axis=1, inplace=True)
         # X_train.to_csv("/run/media/zain/Local Disk/Projects/Python/pl_predictor/data/X_train.csv", index=False)
         # fixtures.to_csv("/run/media/zain/Local Disk/Projects/Python/pl_predictor/data/upcoming_fixtures.csv", index=False, encoding='utf-8')
-        return data,fixtures
+        return X_train, X_test, Y_train, Y_test, fixtures
