@@ -10,7 +10,9 @@ logger = get_logger(__name__)
 def clean_data(data: pd.DataFrame) -> pd.DataFrame:
     """
     Clean raw data loaded from API
+
     Args: pd.DataFrame: Dataframe containing the data from the API for all previous matches from 2023 to 2026
+    
     Returns: pd.DataFrame: Dataframe containing clean data for all previous matches from 2023 to 2026
     """
     try:

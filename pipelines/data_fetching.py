@@ -5,11 +5,13 @@ from steps.clean_data import clean_data
 
 logger = get_logger(__name__)
 
-@pipeline
+@pipeline(enable_cache=False)
 def data_fetching():
     """
     Pipeline to load data from API endpoint
+
     Args: None
+    
     Returns: None    
     """
     try:

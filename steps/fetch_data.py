@@ -9,7 +9,9 @@ logger = get_logger(__name__)
 def fetch_data():
     """
     Method to load data from API endpoint and return a dataframe 
+
     Args: None
+    
     Returns: pd.DataFrame: Dataframe containing the data from the API for all previous matches from 2023 to 2026
     """
     try:

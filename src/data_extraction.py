@@ -15,7 +15,9 @@ class DataExtraction:
     def load_api(self) -> pd.DataFrame:
         """
         Method to load data from API endpoint and return a dataframe 
+
         Args: None
+
         Returns: pd.DataFrame: Dataframe containing the data from the API for all previous matches from 2023 to 2026
         """
         try:
@@ -28,15 +30,15 @@ class DataExtraction:
 
             previous_matches = []
             for season,url in season_urls.items():
-                try:
-                    response = requests.get(url, timeout=10)
-                    from io import StringIO
-                    season_data = pd.read_csv(StringIO(response.text))
-                    previous_matches.append(season_data)
-                except Exception as e:
-                    raise e
+                response = requests.get(url, timeout=10)
+                from io import StringIO
+                content = response.content.decode('utf-8-sig')
+                season_data = pd.read_csv(StringIO(content))
+                season_data['season'] = season
+                previous_matches.append(season_data)
+                
             previous_matches = pd.concat(previous_matches, ignore_index=True)
-            previous_matches.to_csv("/run/media/zain/Local Disk/Projects/Python/pl_predictor/data/previous_matches.csv", index=False)
+            previous_matches.to_csv("/run/media/zain/Local Disk/Projects/Python/pl_predictor/data/previous_matches.csv", index=False, encoding='utf-8')
             return previous_matches
         except Exception as e:
             logger.error(e)
