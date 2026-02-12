@@ -6,9 +6,11 @@ from zenml.logger import get_logger
 logger = get_logger(__name__)
 
 @step
-def ingest_data():
+def fetch_data():
     """
-    Docstring for ingest_data
+    Method to load data from API endpoint and return a dataframe 
+    Args: None
+    Returns: pd.DataFrame: Dataframe containing the data from the API for all previous matches from 2023 to 2026
     """
     try:
         ingest = DataExtraction()

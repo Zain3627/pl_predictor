@@ -1,7 +1,10 @@
-from steps.ingest_data import ingest_data
-
 from pipelines.data_fetching import data_fetching
+from zenml.logger import get_logger
+logger = get_logger(__name__)
 
 if __name__ == "__main__":
-    fetch = data_fetching()
-    print("Finished fetching")
+    try:
+        fetch = data_fetching()
+        logger.info("Data fetching pipeline executed successfully")        
+    except Exception as e:
+        logger.error(e)
