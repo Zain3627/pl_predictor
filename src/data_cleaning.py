@@ -43,6 +43,8 @@ class DataCleaning:
         # add home and away columns
         data['HP'] = data['FTR'].apply(lambda x: 3 if x == 'H' else (1 if x == 'D' else 0))
         data['AP'] = data['FTR'].apply(lambda x: 3 if x == 'A' else (1 if x == 'D' else 0))
+        data['HTP'] = data.groupby(['season','HomeTeam'])['HP'].cumsum() - data['HP']
+        data['ATP'] = data.groupby(['season','AwayTeam'])['AP'].cumsum() - data['AP']
         data['HCS'] = data['FTAG'].apply(lambda x : 1 if x == 0 else 0)
         data['ACS'] = data['FTHG'].apply(lambda x : 1 if x == 0 else 0)
 
@@ -73,7 +75,7 @@ class DataCleaning:
             .reset_index(drop=True))
         home_snapshot = home_snapshot[home_snapshot['season'] == 2026]
         home_snapshot.drop([
-            'away_avg_FTAG', 'away_avg_AS', 'away_avg_AST', 'away_avg_AC', 'away_avg_AP', 'away_avg_ACS', 'A_goals/shot', 'away_avg_AP_squared', 'season', 'AwayTeam','FTR'
+            'away_avg_FTAG', 'away_avg_AS', 'away_avg_AST', 'away_avg_AC', 'away_avg_AP', 'away_avg_ACS', 'A_goals/shot', 'away_avg_AP_squared', 'season', 'AwayTeam','FTR', 'ATP'
         ], axis=1, inplace=True)
 
         away_snapshot = (data
@@ -82,11 +84,11 @@ class DataCleaning:
             .reset_index(drop=True))
         away_snapshot = away_snapshot[away_snapshot['season'] == 2026]
         away_snapshot.drop([
-            'home_avg_FTHG', 'home_avg_HS', 'home_avg_HST', 'home_avg_HC', 'home_avg_HP', 'home_avg_HCS', 'H_golas/shot', 'home_avg_HP_squared', 'season', 'HomeTeam', 'FTR'
+            'home_avg_FTHG', 'home_avg_HS', 'home_avg_HST', 'home_avg_HC', 'home_avg_HP', 'home_avg_HCS', 'H_golas/shot', 'home_avg_HP_squared', 'season', 'HomeTeam', 'FTR', 'HTP'
         ], axis=1, inplace=True)
 
-        # home_snapshot.to_csv("/run/media/zain/Local Disk/Projects/Python/pl_predictor/data/home_snapshot.csv", index=False)
-        # away_snapshot.to_csv("/run/media/zain/Local Disk/Projects/Python/pl_predictor/data/away_snapshot.csv", index=False)
+        home_snapshot.to_csv("/run/media/zain/Local Disk/Projects/Python/pl_predictor/data/home_snapshot.csv", index=False)
+        away_snapshot.to_csv("/run/media/zain/Local Disk/Projects/Python/pl_predictor/data/away_snapshot.csv", index=False)
         data.drop(['HomeTeam', 'AwayTeam'], axis=1, inplace=True)       
         
         # fixtures data
@@ -106,13 +108,24 @@ class DataCleaning:
         fixtures = fixtures.merge(away_snapshot, how='left', left_on='AwayTeam', right_on='AwayTeam')
         fixtures.drop(['HomeTeam', 'AwayTeam'], axis=1, inplace=True)
 
-        # data.to_csv("/run/media/zain/Local Disk/Projects/Python/pl_predictor/data/averaged_previous_matches.csv", index=False)
+        data.to_csv("/run/media/zain/Local Disk/Projects/Python/pl_predictor/data/averaged_previous_matches.csv", index=False)
         Y = data['FTR']
         Y = Y.map({'H': 0, 'D': 1, 'A': 2})
         X = data.drop('FTR', axis=1)
+        # X is the previous matches and fixtures is the upcomming fixtures
+        # make differential features for home and away teams
+        X['diff_avg_FTHG'] = X['home_avg_FTHG'] - X['away_avg_FTAG']
+        fixtures['diff_avg_FTHG'] = fixtures['home_avg_FTHG'] - fixtures['away_avg_FTAG']
+        X['diff_avg_points'] = X['home_avg_HP'] - X['away_avg_AP']
+        fixtures['diff_avg_points'] = fixtures['home_avg_HP'] - fixtures['away_avg_AP']
+        X['diff_avg_total_points'] = X['HTP'] - X['ATP']
+        fixtures['diff_avg_total_points'] = fixtures['HTP'] - fixtures['ATP']
+        X['diff_avg_CS'] = X['home_avg_HCS'] - X['away_avg_ACS']
+        fixtures['diff_avg_CS'] = fixtures['home_avg_HCS'] - fixtures['away_avg_ACS']
+
         X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=27, stratify=X['season'])
         X_train.drop('season', axis=1, inplace=True)
         X_test.drop('season', axis=1, inplace=True)
-        # X_train.to_csv("/run/media/zain/Local Disk/Projects/Python/pl_predictor/data/X_train.csv", index=False)
-        # fixtures.to_csv("/run/media/zain/Local Disk/Projects/Python/pl_predictor/data/upcoming_fixtures.csv", index=False, encoding='utf-8')
+        X_train.to_csv("/run/media/zain/Local Disk/Projects/Python/pl_predictor/data/X_train.csv", index=False)
+        fixtures.to_csv("/run/media/zain/Local Disk/Projects/Python/pl_predictor/data/upcoming_fixtures.csv", index=False, encoding='utf-8')
         return X_train, X_test, Y_train, Y_test, fixtures
