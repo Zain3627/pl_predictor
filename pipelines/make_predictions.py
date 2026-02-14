@@ -1,6 +1,6 @@
 from zenml import pipeline
 from steps.ingest_data import ingest_data
-
+from steps.train_model import train_model
 from zenml.logger import get_logger
 
 logger = get_logger(__name__)
@@ -16,6 +16,7 @@ def make_predictions():
     """
     try:
         X_train, X_test, Y_train, Y_test, fixtures = ingest_data()
+        train_model(X_train, Y_train)
     except Exception as e:
         logger.error(e)
         raise e

@@ -1,5 +1,4 @@
 supabase_password.txt
-config.py
 src/.env
 __pycache__/
 **/__pycache__/
