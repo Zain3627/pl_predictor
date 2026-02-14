@@ -1,12 +1,19 @@
 from zenml import pipeline, step
 from src.data_ingest import DataIngest
+from typing_extensions import Annotated, Tuple
 import pandas as pd
 
 from zenml.logger import get_logger
 logger = get_logger(__name__)
 
 @step
-def ingest_data() -> None:
+def ingest_data() -> Tuple[
+        Annotated[pd.DataFrame,'X_train'], 
+        Annotated[pd.DataFrame,'X_test'],
+        Annotated[pd.Series,'Y_train'],
+        Annotated[pd.Series,'Y_test'],
+        Annotated[pd.DataFrame,'fixtures'],
+        ]:
     """
     Step that ingests the clean and ready data from database
 
@@ -21,9 +28,9 @@ def ingest_data() -> None:
     """
     try:
         ingestor = DataIngest()
-        ingestor.ingest()
+        X_train, X_test, Y_train, Y_test, fixtures = ingestor.ingest()
         logger.info("Completed ingest step")
-        return None
+        return X_train, X_test, Y_train, Y_test, fixtures
     except Exception as e:
         logger.error(e)
         raise e

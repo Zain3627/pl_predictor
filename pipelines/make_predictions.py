@@ -15,7 +15,7 @@ def make_predictions():
     Returns: None    
     """
     try:
-        ingest_data()
+        X_train, X_test, Y_train, Y_test, fixtures = ingest_data()
     except Exception as e:
         logger.error(e)
         raise e
