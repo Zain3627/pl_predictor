@@ -9,7 +9,7 @@ logger = get_logger(__name__)
 @pipeline(enable_cache=False)
 def data_fetching():
     """
-    Pipeline to load data from API endpoint
+    Pipeline to load data from API endpoint, clean data and upload to database
 
     Args: None
     

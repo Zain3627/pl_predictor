@@ -13,7 +13,18 @@ class DataUpload:
         pass
 
     def upload(self, X_train:pd.DataFrame, X_test:pd.DataFrame, Y_train:pd.Series, Y_test:pd.Series, fixtures:pd.DataFrame) -> None:
-        
+        """
+        Upload clean data to database
+
+        Args:
+        X_train:pd.DataFrame training features for matches from 2023 to 2026
+        X_test:pd.DataFrame testing features for matches from 2023 to 2026
+        Y_train:pd.Series target variable for matches from 2023 to 2026
+        Y_test:pd.Series target variable for matches from 2023 to 2026
+        fixtures:pd.DataFrame cleaned data for upcoming fixtures for the 2026 season
+
+        Returns: None
+        """
         # Load environment variables from .env
         load_dotenv()
 

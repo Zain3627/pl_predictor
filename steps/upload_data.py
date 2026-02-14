@@ -8,7 +8,7 @@ logger = get_logger(__name__)
 @step
 def upload_data(X_train:pd.DataFrame, X_test:pd.DataFrame, Y_train:pd.Series, Y_test:pd.Series, fixtures:pd.DataFrame) -> None:
     """
-    Method to upload cleaned data to database
+    Step to upload cleaned data to database
 
     Args: 
     X_train:pd.DataFrame training features for matches from 2023 to 2026
