@@ -1,4 +1,6 @@
 import pandas as pd
+import numpy as np
+
 from zenml.logger import get_logger
 logger = get_logger(__name__)
 
@@ -10,13 +12,13 @@ from sklearn.metrics import mean_squared_error, r2_score, root_mean_squared_erro
 class ModelEvaluation(ABC):
 
     @abstractmethod
-    def evaluate(self, predicted_Y_test: pd.DataFrame, true_Y_test: pd.Series) -> float:
+    def evaluate(self, predicted_Y_test: np.ndarray, true_Y_test: np.ndarray) -> float:
         """
         Abstract method for the strategy pattern to evaluate the model performance on the test set.
         
         Args:
-        predicted_Y_test:pd.DataFrame predicted target values for matches from 2023 to 2026
-        true_Y_test:pd.Series target variable for matches from 2023 to 2026
+        predicted_Y_test:np.ndarray predicted target values for matches from 2023 to 2026
+        true_Y_test:np.ndarray target variable for matches from 2023 to 2026
 
         Returns:
         evaluation_metric: float evaluation metric value
@@ -27,7 +29,7 @@ class MSE(ModelEvaluation):
     """
     Class to evaluate the model performance using Mean Squared Error
     """
-    def evaluate(self, predicted_Y_test: pd.DataFrame, true_Y_test: pd.Series) -> float:
+    def evaluate(self, predicted_Y_test: np.ndarray, true_Y_test: np.ndarray) -> float:
         try:
             logger.info('Evaluating model using Mean Squared Error')
             mse = mean_squared_error(true_Y_test, predicted_Y_test)
@@ -42,7 +44,7 @@ class RMSE(ModelEvaluation):
     """
     Class to evaluate the model performance using Root Mean Squared Error
     """
-    def evaluate(self, predicted_Y_test: pd.DataFrame, true_Y_test: pd.Series) -> float:
+    def evaluate(self, predicted_Y_test: np.ndarray, true_Y_test: np.ndarray) -> float:
         try:
             logger.info('Evaluating model using Root Mean Squared Error')
             rmse = root_mean_squared_error(true_Y_test, predicted_Y_test)
@@ -57,7 +59,7 @@ class R2Score(ModelEvaluation):
     """
     Class to evaluate the model performance using R2 Score
     """
-    def evaluate(self, predicted_Y_test: pd.DataFrame, true_Y_test: pd.Series) -> float:
+    def evaluate(self, predicted_Y_test: np.ndarray, true_Y_test: np.ndarray) -> float:
         try:
             logger.info('Evaluating model using R2 Score')
             r2 = r2_score(true_Y_test, predicted_Y_test)
@@ -72,11 +74,16 @@ class Accuracy(ModelEvaluation):
     """
     Class to evaluate the model performance using Accuracy
     """
-    def evaluate(self, predicted_Y_test: pd.DataFrame, true_Y_test: pd.Series) -> float:
+    def evaluate(self, predicted_Y_test: np.ndarray, true_Y_test: np.ndarray) -> float:
         try:
             logger.info('Evaluating model using Accuracy')
             accuracy = (predicted_Y_test == true_Y_test).mean()
             logger.info(f'Accuracy: {accuracy}')
+
+            pd.DataFrame({
+                'predicted': predicted_Y_test,
+                'true': true_Y_test
+            }).to_csv('predicted_vs_true.csv', index=False)
             return accuracy
         
         except Exception as e:

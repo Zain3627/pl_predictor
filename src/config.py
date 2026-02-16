@@ -1,11 +1,10 @@
-from zenml.steps import BaseParameters
+from pydantic import BaseModel
 
 
-class ModelNameConfig(BaseParameters):
+class ModelNameConfig(BaseModel):
     """
     Model Configurations
     model_name options: linear_regression, random_forest, xgboost
     """
     
-    model_name: str = "linear_regression"
-    
+    model_name: str = "xgboost"

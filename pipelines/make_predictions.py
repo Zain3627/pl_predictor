@@ -18,7 +18,7 @@ def make_predictions():
     try:
         X_train, X_test, Y_train, Y_test, fixtures = ingest_data()
         model = train_model(X_train, Y_train)
-        rmse, r2_score = evaluate_model(model, X_test, Y_test)
+        accuracy, rmse, r2_score = evaluate_model(model, X_test, Y_test)
     except Exception as e:
         logger.error(e)
         raise e
