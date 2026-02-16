@@ -8,7 +8,12 @@ from src.model_evaluation import MSE, RMSE, R2Score, Accuracy
 from sklearn.base import RegressorMixin
 from typing_extensions import Annotated, Tuple
 
-@step
+import mlflow
+from zenml.client import Client
+
+experiment_tracker = Client().active_stack.experiment_tracker
+
+@step(experiment_tracker=experiment_tracker.name)
 def evaluate_model(
         model: RegressorMixin,
         X_test: pd.DataFrame,
@@ -43,6 +48,10 @@ def evaluate_model(
         accuracy = accuracy_evaluator.evaluate(predicted_Y_test, true_Y_test)
         rmse = rmse_evaluator.evaluate(predicted_Y_test, true_Y_test)
         r2_score = r2_score_evaluator.evaluate(predicted_Y_test, true_Y_test)
+
+        mlflow.log_metric('accuracy', accuracy)
+        mlflow.log_metric('rmse', rmse)
+        mlflow.log_metric('r2_score', r2_score)
 
         logger.info(f'Model evaluation completed with Accuracy: {accuracy}, RMSE: {rmse}, R2 Score: {r2_score}')
         return accuracy,rmse, r2_score

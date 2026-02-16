@@ -5,8 +5,12 @@ logger = get_logger(__name__)
 
 from src.model_train import ModelTrain
 from sklearn.base import RegressorMixin
+import mlflow
+from zenml.client import Client
 
-@step
+experiment_tracker = Client().active_stack.experiment_tracker
+
+@step(experiment_tracker=experiment_tracker.name)
 def train_model(X_train: pd.DataFrame, Y_train: pd.Series) -> RegressorMixin:
     """
     Method to train model that is choosen in the config file
@@ -24,6 +28,7 @@ def train_model(X_train: pd.DataFrame, Y_train: pd.Series) -> RegressorMixin:
     try:
         trainer = ModelTrain()
         trained_model = trainer.train(X_train, Y_train)
+        mlflow.sklearn.autolog()
         logger.info('Completed model training step')
         return trained_model
     except Exception as e:
