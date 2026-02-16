@@ -67,3 +67,18 @@ class R2Score(ModelEvaluation):
         except Exception as e:
             logger.error(e)
             raise e
+
+class Accuracy(ModelEvaluation):
+    """
+    Class to evaluate the model performance using Accuracy
+    """
+    def evaluate(self, predicted_Y_test: pd.DataFrame, true_Y_test: pd.Series) -> float:
+        try:
+            logger.info('Evaluating model using Accuracy')
+            accuracy = (predicted_Y_test == true_Y_test).mean()
+            logger.info(f'Accuracy: {accuracy}')
+            return accuracy
+        
+        except Exception as e:
+            logger.error(e)
+            raise e

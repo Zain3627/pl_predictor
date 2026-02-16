@@ -3,7 +3,7 @@ from zenml import step
 from zenml.logger import get_logger
 logger = get_logger(__name__)
 
-from src.model_evaluation import MSE, RMSE, R2Score
+from src.model_evaluation import MSE, RMSE, R2Score, Accuracy
 from sklearn.base import RegressorMixin
 from typing_extensions import Annotated, Tuple
 
@@ -12,7 +12,11 @@ def evaluate_model(
         model: RegressorMixin,
         X_test: pd.DataFrame,
         Y_test: pd.Series
-) -> Tuple [Annotated[float, 'RMSE'], Annotated[float, 'R2Score']]:
+) -> Tuple [
+    Annotated[float, 'Accuracy'],
+    Annotated[float, 'RMSE'], 
+    Annotated[float, 'R2Score']
+    ]:
     """
     Step to evaluate the model performance on the test set using RMSE and R2 Score
     
@@ -29,14 +33,16 @@ def evaluate_model(
         logger.info('Predicting on test set')
         predicted_Y_test = model.predict(X_test)
 
+        accuracy_evaluator = Accuracy()
         rmse_evaluator = RMSE()
         r2_score_evaluator = R2Score()
 
+        accuracy = accuracy_evaluator.evaluate(predicted_Y_test, Y_test)
         rmse = rmse_evaluator.evaluate(predicted_Y_test, Y_test)
         r2_score = r2_score_evaluator.evaluate(predicted_Y_test, Y_test)
 
-        logger.info(f'Model evaluation completed with RMSE: {rmse} and R2 Score: {r2_score}')
-        return rmse, r2_score
+        logger.info(f'Model evaluation completed with Accuracy: {accuracy}, RMSE: {rmse}, R2 Score: {r2_score}')
+        return accuracy,rmse, r2_score
     
     except Exception as e:
         logger.error(e)
