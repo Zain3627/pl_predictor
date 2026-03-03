@@ -6,7 +6,7 @@ logger = get_logger(__name__)
 
 from abc import ABC, abstractmethod
 
-from sklearn.metrics import mean_squared_error, r2_score, root_mean_squared_error
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 
 
 class ModelEvaluation(ABC):
@@ -25,51 +25,6 @@ class ModelEvaluation(ABC):
         """
         pass
 
-class MSE(ModelEvaluation):
-    """
-    Class to evaluate the model performance using Mean Squared Error
-    """
-    def evaluate(self, predicted_Y_test: np.ndarray, true_Y_test: np.ndarray) -> float:
-        try:
-            logger.info('Evaluating model using Mean Squared Error')
-            mse = mean_squared_error(true_Y_test, predicted_Y_test)
-            logger.info(f'Mean Squared Error: {mse}')
-            return mse
-        
-        except Exception as e:
-            logger.error(e)
-            raise e
-
-class RMSE(ModelEvaluation):
-    """
-    Class to evaluate the model performance using Root Mean Squared Error
-    """
-    def evaluate(self, predicted_Y_test: np.ndarray, true_Y_test: np.ndarray) -> float:
-        try:
-            logger.info('Evaluating model using Root Mean Squared Error')
-            rmse = root_mean_squared_error(true_Y_test, predicted_Y_test)
-            logger.info(f'Root Mean Squared Error: {rmse}')
-            return rmse
-        
-        except Exception as e:
-            logger.error(e)
-            raise e
-        
-class R2Score(ModelEvaluation):
-    """
-    Class to evaluate the model performance using R2 Score
-    """
-    def evaluate(self, predicted_Y_test: np.ndarray, true_Y_test: np.ndarray) -> float:
-        try:
-            logger.info('Evaluating model using R2 Score')
-            r2 = r2_score(true_Y_test, predicted_Y_test)
-            logger.info(f'R2 Score: {r2}')
-            return r2
-        
-        except Exception as e:
-            logger.error(e)
-            raise e
-
 class Accuracy(ModelEvaluation):
     """
     Class to evaluate the model performance using Accuracy
@@ -77,7 +32,7 @@ class Accuracy(ModelEvaluation):
     def evaluate(self, predicted_Y_test: np.ndarray, true_Y_test: np.ndarray) -> float:
         try:
             logger.info('Evaluating model using Accuracy')
-            accuracy = (predicted_Y_test == true_Y_test).mean()
+            accuracy = accuracy_score(true_Y_test, predicted_Y_test)
             logger.info(f'Accuracy: {accuracy}')
 
             pd.DataFrame({
@@ -85,6 +40,51 @@ class Accuracy(ModelEvaluation):
                 'true': true_Y_test
             }).to_csv('predicted_vs_true.csv', index=False)
             return accuracy
+        
+        except Exception as e:
+            logger.error(e)
+            raise e
+
+class Precision(ModelEvaluation):
+    """
+    Class to evaluate the model performance using Precision (weighted)
+    """
+    def evaluate(self, predicted_Y_test: np.ndarray, true_Y_test: np.ndarray) -> float:
+        try:
+            logger.info('Evaluating model using Precision')
+            precision = precision_score(true_Y_test, predicted_Y_test, average='weighted', zero_division=0)
+            logger.info(f'Precision: {precision}')
+            return precision
+        
+        except Exception as e:
+            logger.error(e)
+            raise e
+
+class Recall(ModelEvaluation):
+    """
+    Class to evaluate the model performance using Recall (weighted)
+    """
+    def evaluate(self, predicted_Y_test: np.ndarray, true_Y_test: np.ndarray) -> float:
+        try:
+            logger.info('Evaluating model using Recall')
+            recall = recall_score(true_Y_test, predicted_Y_test, average='weighted', zero_division=0)
+            logger.info(f'Recall: {recall}')
+            return recall
+        
+        except Exception as e:
+            logger.error(e)
+            raise e
+
+class F1Score(ModelEvaluation):
+    """
+    Class to evaluate the model performance using F1 Score (weighted)
+    """
+    def evaluate(self, predicted_Y_test: np.ndarray, true_Y_test: np.ndarray) -> float:
+        try:
+            logger.info('Evaluating model using F1 Score')
+            f1 = f1_score(true_Y_test, predicted_Y_test, average='weighted', zero_division=0)
+            logger.info(f'F1 Score: {f1}')
+            return f1
         
         except Exception as e:
             logger.error(e)

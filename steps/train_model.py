@@ -4,26 +4,23 @@ from zenml import step
 logger = get_logger(__name__)
 
 from src.model_train import ModelTrain
-from sklearn.base import RegressorMixin
+from sklearn.base import ClassifierMixin
 import mlflow
 from zenml.client import Client
 
 experiment_tracker = Client().active_stack.experiment_tracker
 
 @step(experiment_tracker=experiment_tracker.name)
-def train_model(X_train: pd.DataFrame, Y_train: pd.Series) -> RegressorMixin:
+def train_model(X_train: pd.DataFrame, Y_train: pd.Series) -> ClassifierMixin:
     """
     Method to train model that is choosen in the config file
         
     Args:
     X_train:pd.DataFrame training features for matches from 2023 to 2026
-    X_test:pd.DataFrame testing features for matches from 2023 to 2026
     Y_train:pd.Series target variable for matches from 2023 to 2026
-    Y_test:pd.Series target variable for matches from 2023 to 2026
-    fixtures:pd.DataFrame cleaned data for upcoming fixtures for the 2026 season   
 
     Returns: 
-    trained_model: RegressorMixin trained model object
+    trained_model: ClassifierMixin trained model object
     """
     try:
         trainer = ModelTrain()

@@ -4,8 +4,8 @@ from zenml import step
 from zenml.logger import get_logger
 logger = get_logger(__name__)
 
-from src.model_evaluation import MSE, RMSE, R2Score, Accuracy
-from sklearn.base import RegressorMixin
+from src.model_evaluation import Accuracy, Precision, Recall, F1Score
+from sklearn.base import ClassifierMixin
 from typing_extensions import Annotated, Tuple
 
 import mlflow
@@ -15,46 +15,46 @@ experiment_tracker = Client().active_stack.experiment_tracker
 
 @step(experiment_tracker=experiment_tracker.name)
 def evaluate_model(
-        model: RegressorMixin,
+        model: ClassifierMixin,
         X_test: pd.DataFrame,
         Y_test: pd.Series
 ) -> Tuple [
     Annotated[float, 'Accuracy'],
-    Annotated[float, 'RMSE'], 
-    Annotated[float, 'R2Score']
+    Annotated[float, 'Precision'], 
+    Annotated[float, 'F1Score']
     ]:
     """
-    Step to evaluate the model performance on the test set using RMSE and R2 Score
+    Step to evaluate the model performance on the test set using classification metrics
     
     Args:
-    model: RegressorMixin trained model object
+    model: ClassifierMixin trained model object
     X_test:pd.DataFrame testing features for matches from 2023 to 2026
     Y_test:pd.Series target variable for matches from 2023 to 2026
 
     Returns:
-    rmse: float Root Mean Squared Error value
-    r2_score: float R2 Score value
+    accuracy: float Accuracy value
+    precision: float Precision value
+    f1_score: float F1 Score value
     """
     try:
         logger.info('Predicting on test set')
         predicted_Y_test = np.array(model.predict(X_test))
-        predicted_Y_test = np.round(predicted_Y_test).astype(int)
         true_Y_test = np.array(Y_test)
 
         accuracy_evaluator = Accuracy()
-        rmse_evaluator = RMSE()
-        r2_score_evaluator = R2Score()
+        precision_evaluator = Precision()
+        f1_score_evaluator = F1Score()
 
         accuracy = accuracy_evaluator.evaluate(predicted_Y_test, true_Y_test)
-        rmse = rmse_evaluator.evaluate(predicted_Y_test, true_Y_test)
-        r2_score = r2_score_evaluator.evaluate(predicted_Y_test, true_Y_test)
+        precision = precision_evaluator.evaluate(predicted_Y_test, true_Y_test)
+        f1_score = f1_score_evaluator.evaluate(predicted_Y_test, true_Y_test)
 
         mlflow.log_metric('accuracy', accuracy)
-        mlflow.log_metric('rmse', rmse)
-        mlflow.log_metric('r2_score', r2_score)
+        mlflow.log_metric('precision', precision)
+        mlflow.log_metric('f1_score', f1_score)
 
-        logger.info(f'Model evaluation completed with Accuracy: {accuracy}, RMSE: {rmse}, R2 Score: {r2_score}')
-        return accuracy,rmse, r2_score
+        logger.info(f'Model evaluation completed with Accuracy: {accuracy}, Precision: {precision}, F1 Score: {f1_score}')
+        return accuracy, precision, f1_score
     
     except Exception as e:
         logger.error(e)

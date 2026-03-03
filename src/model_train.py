@@ -2,11 +2,11 @@ import pandas as pd
 from zenml.logger import get_logger
 logger = get_logger(__name__)
 
-from sklearn.linear_model import LinearRegression
-from sklearn.ensemble import RandomForestRegressor
-from xgboost import XGBRegressor
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
+from xgboost import XGBClassifier
 
-from sklearn.base import RegressorMixin
+from sklearn.base import ClassifierMixin
 
 from src.config import ModelNameConfig
 
@@ -14,7 +14,7 @@ class ModelTrain:
     def __init__(self):
         pass
 
-    def train(self, X_train: pd.DataFrame, Y_train: pd.Series) -> RegressorMixin:
+    def train(self, X_train: pd.DataFrame, Y_train: pd.Series) -> ClassifierMixin:
         """
         Train model that is choosen in the config file
         
@@ -23,21 +23,21 @@ class ModelTrain:
         Y_train:pd.Series target variable for matches from 2023 to 2026
 
         Returns: 
-        trained_model: RegressorMixin trained model object
+        trained_model: ClassifierMixin trained model object
         """   
          
         try:
             config = ModelNameConfig()
             logger.info('Training model')
             model = config.model_name
-            if model == 'linear_regression':
-                trained_model = LinearRegression()
+            if model == 'logistic_regression':
+                trained_model = LogisticRegression(max_iter=1000)
 
             elif model == 'random_forest':
-                trained_model = RandomForestRegressor()
+                trained_model = RandomForestClassifier()
 
             elif model == 'xgboost':
-                trained_model = XGBRegressor()
+                trained_model = XGBClassifier()
 
             else :
                 raise ValueError(f"Model {model} is not supported")
