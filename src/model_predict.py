@@ -57,6 +57,7 @@ class ModelPredict():
             ).sort_values('total_points', ascending=False).reset_index(drop=True)
 
             league_table.to_csv('/mnt/localdisk/Projects/Python/pl_predictor/data/predicted_league_table.csv', index=False)
+
             return league_table
         except Exception as e:
             logger.error(f'Error predicting fixtures: {e}')

@@ -3,6 +3,7 @@ from steps.ingest_data import ingest_data
 from steps.train_model import train_model
 from steps.evaluate_model import evaluate_model
 from steps.predict_model import predict_model
+from steps.upload_table import upload_data
 from zenml.logger import get_logger
 
 logger = get_logger(__name__)
@@ -21,6 +22,8 @@ def make_predictions():
         model = train_model(X_train, Y_train)
         accuracy, precision, f1_score = evaluate_model(model, X_test, Y_test)
         predicted_fixtures = predict_model(model, fixtures, team_ids_df, league_table)
+        upload_data(predicted_fixtures)
+
     except Exception as e:
         logger.error(e)
         raise e
