@@ -12,7 +12,7 @@ class DataUpload:
     def __init__(self):
         pass
 
-    def upload(self, X_train:pd.DataFrame, X_test:pd.DataFrame, Y_train:pd.Series, Y_test:pd.Series, fixtures:pd.DataFrame) -> None:
+    def upload(self, X_train:pd.DataFrame, X_test:pd.DataFrame, Y_train:pd.Series, Y_test:pd.Series, fixtures:pd.DataFrame, team_ids_df:pd.DataFrame, league_table:pd.DataFrame) -> None:
         """
         Upload clean data to database
 
@@ -22,6 +22,8 @@ class DataUpload:
         Y_train:pd.Series target variable for matches from 2023 to 2026
         Y_test:pd.Series target variable for matches from 2023 to 2026
         fixtures:pd.DataFrame cleaned data for upcoming fixtures for the 2026 season
+        team_ids_df:pd.DataFrame team IDs for upcoming fixtures for the 2026 season
+        league_table:pd.DataFrame league table for the 2026 season
 
         Returns: None
         """
@@ -52,6 +54,8 @@ class DataUpload:
                 "train_score": Y_train,
                 "test_score": Y_test,
                 "upcoming_fixtures": fixtures,
+                "team_ids_df": team_ids_df,
+                "league_table": league_table
             }
 
             def _series_to_df(series: pd.Series) -> pd.DataFrame:

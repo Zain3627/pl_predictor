@@ -16,9 +16,9 @@ def data_fetching():
     Returns: None    
     """
     try:
-        previous_matches, fixtures_df = fetch_data()
-        X_train, X_test, Y_train, Y_test, fixtures = clean_data(previous_matches, fixtures_df)
-        upload_data(X_train, X_test, Y_train, Y_test, fixtures)
+        previous_matches, fixtures_df, league_table = fetch_data()
+        X_train, X_test, Y_train, Y_test, fixtures, team_ids_df = clean_data(previous_matches, fixtures_df)
+        upload_data(X_train, X_test, Y_train, Y_test, fixtures, team_ids_df, league_table)
     except Exception as e:
         logger.error(e)
         raise e

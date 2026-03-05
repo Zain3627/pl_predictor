@@ -21,6 +21,8 @@ class DataIngest:
         Annotated[pd.Series,'Y_train'],
         Annotated[pd.Series,'Y_test'],
         Annotated[pd.DataFrame,'fixtures'],
+        Annotated[pd.DataFrame,'team_ids_df'],
+        Annotated[pd.DataFrame,'league_table']
         ]:
         """
         Method that ingests the clean and ready data from database
@@ -32,7 +34,9 @@ class DataIngest:
         X_test:pd.DataFrame testing features for matches from 2023 to 2026
         Y_train:pd.Series target variable for matches from 2023 to 2026
         Y_test:pd.Series target variable for matches from 2023 to 2026
-        fixtures:pd.DataFrame cleaned data for upcoming fixtures for the 2026 season        
+        fixtures:pd.DataFrame cleaned data for upcoming fixtures for the 2026 season  
+        team_ids_df:pd.DataFrame team IDs for upcoming fixtures for the 2026 season
+        league_table:pd.DataFrame league table for the 2026 season      
         """
         load_dotenv()
 
@@ -85,10 +89,22 @@ class DataIngest:
                 fixtures = pd.DataFrame(cursor.fetchall(), columns=[desc[0] for desc in cursor.description])
                 fixtures = fixtures.drop(columns=['row_id'])
                 logger.info(f"Fetched fixtures: {len(fixtures)} rows")
-            
+
+                # Fetch team IDs
+                cursor.execute('SELECT * FROM "team_ids_df" ORDER BY row_id')
+                team_ids_df = pd.DataFrame(cursor.fetchall(), columns=[desc[0] for desc in cursor.description])
+                team_ids_df = team_ids_df.drop(columns=['row_id'])
+                logger.info(f"Fetched team_ids_df: {len(team_ids_df)} rows")
+
+                # Fetch league table
+                cursor.execute('SELECT * FROM "league_table" ORDER BY row_id')
+                league_table = pd.DataFrame(cursor.fetchall(), columns=[desc[0] for desc in cursor.description])
+                league_table = league_table.drop(columns=['row_id'])
+                logger.info(f"Fetched league_table: {len(league_table)} rows")
+
             connection.close()
             logger.info("Database connection closed")
-            return X_train, X_test, Y_train, Y_test, fixtures
+            return X_train, X_test, Y_train, Y_test, fixtures, team_ids_df, league_table
 
         except Exception as e:
             logger.error(f"Database connection failed: {e}")

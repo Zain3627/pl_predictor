@@ -6,7 +6,7 @@ import pandas as pd
 logger = get_logger(__name__)
 
 @step
-def upload_data(X_train:pd.DataFrame, X_test:pd.DataFrame, Y_train:pd.Series, Y_test:pd.Series, fixtures:pd.DataFrame) -> None:
+def upload_data(X_train:pd.DataFrame, X_test:pd.DataFrame, Y_train:pd.Series, Y_test:pd.Series, fixtures:pd.DataFrame, team_ids_df:pd.DataFrame, league_table:pd.DataFrame) -> None:
     """
     Step to upload cleaned data to database
 
@@ -16,12 +16,14 @@ def upload_data(X_train:pd.DataFrame, X_test:pd.DataFrame, Y_train:pd.Series, Y_
     Y_train:pd.Series target variable for matches from 2023 to 2026
     Y_test:pd.Series target variable for matches from 2023 to 2026
     fixtures:pd.DataFrame cleaned data for upcoming fixtures for the 2026 season
+    team_ids_df:pd.DataFrame team IDs for upcoming fixtures for the 2026 season
+    league_table:pd.DataFrame league table for the 2026 season
     
     Returns: None
     """
     try:
         uploader = DataUpload()
-        uploader.upload(X_train, X_test, Y_train, Y_test, fixtures)
+        uploader.upload(X_train, X_test, Y_train, Y_test, fixtures, team_ids_df, league_table)
         logger.info("Completed upload step")
     except Exception as e:
         logger.error(e)

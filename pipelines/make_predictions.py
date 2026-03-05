@@ -17,10 +17,10 @@ def make_predictions():
     Returns: None    
     """
     try:
-        X_train, X_test, Y_train, Y_test, fixtures = ingest_data()
+        X_train, X_test, Y_train, Y_test, fixtures, team_ids_df, league_table = ingest_data()
         model = train_model(X_train, Y_train)
         accuracy, precision, f1_score = evaluate_model(model, X_test, Y_test)
-        predicted_fixtures = predict_model(model, fixtures)
+        predicted_fixtures = predict_model(model, fixtures, team_ids_df, league_table)
     except Exception as e:
         logger.error(e)
         raise e

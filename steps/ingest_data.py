@@ -13,6 +13,8 @@ def ingest_data() -> Tuple[
         Annotated[pd.Series,'Y_train'],
         Annotated[pd.Series,'Y_test'],
         Annotated[pd.DataFrame,'fixtures'],
+        Annotated[pd.DataFrame,'team_ids_df'],
+        Annotated[pd.DataFrame,'league_table']
         ]:
     """
     Step that ingests the clean and ready data from database
@@ -24,13 +26,15 @@ def ingest_data() -> Tuple[
     X_test:pd.DataFrame testing features for matches from 2023 to 2026
     Y_train:pd.Series target variable for matches from 2023 to 2026
     Y_test:pd.Series target variable for matches from 2023 to 2026
-    fixtures:pd.DataFrame cleaned data for upcoming fixtures for the 2026 season        
+    fixtures:pd.DataFrame cleaned data for upcoming fixtures for the 2026 season     
+    team_ids_df:pd.DataFrame team IDs for upcoming fixtures for the 2026 season
+    league_table:pd.DataFrame league table for the 2026 season         
     """
     try:
         ingestor = DataIngest()
-        X_train, X_test, Y_train, Y_test, fixtures = ingestor.ingest()
+        X_train, X_test, Y_train, Y_test, fixtures, team_ids_df, league_table = ingestor.ingest()
         logger.info("Completed ingest step")
-        return X_train, X_test, Y_train, Y_test, fixtures
+        return X_train, X_test, Y_train, Y_test, fixtures, team_ids_df, league_table
     except Exception as e:
         logger.error(e)
         raise e

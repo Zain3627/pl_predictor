@@ -15,6 +15,7 @@ def clean_data(data: pd.DataFrame, fixtures: pd.DataFrame) -> Tuple[
         Annotated[pd.Series,'Y_train'],
         Annotated[pd.Series,'Y_test'],
         Annotated[pd.DataFrame,'fixtures'],
+        Annotated[pd.DataFrame,'team_ids_df']
         ]:
     """
     Clean raw data loaded from API
@@ -29,12 +30,13 @@ def clean_data(data: pd.DataFrame, fixtures: pd.DataFrame) -> Tuple[
     Y_train:pd.Series target variable for matches from 2023 to 2026
     Y_test:pd.Series target variable for matches from 2023 to 2026
     fixtures:pd.DataFrame cleaned data for upcoming fixtures for the 2026 season
+    team_ids_df:pd.DataFrame team IDs for upcoming fixtures for the 2026 season
     """
     try:
         cleaner = DataCleaning()
-        X_train, X_test, Y_train, Y_test, fixtures = cleaner.clean_data(data, fixtures)
+        X_train, X_test, Y_train, Y_test, fixtures, team_ids_df = cleaner.clean_data(data, fixtures)
         logger.info("Completed cleaning step")
-        return X_train, X_test, Y_train, Y_test, fixtures
+        return X_train, X_test, Y_train, Y_test, fixtures, team_ids_df
     except Exception as e:
         logger.error(e)
         raise e

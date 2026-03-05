@@ -11,14 +11,16 @@ class ModelPredict():
     """
     Class to predict the upcoming fixtures and complete the pl table.
     """
-    def predict_matches(self, model: ClassifierMixin, fixtures: pd.DataFrame) -> pd.DataFrame:
+    def predict_matches(self, model: ClassifierMixin, fixtures: pd.DataFrame, team_ids_df: pd.DataFrame, league_table: pd.DataFrame) -> pd.DataFrame:
         """
         Method to predict the upcoming matches and output the final league standings.
 
         Args: 
         trained_model: ClassifierMixin trained model object
         fixtures: pd.DataFrame upcoming fixtures to predict
-
+        team_ids_df: pd.DataFrame team IDs for upcoming fixtures
+        league_table: pd.DataFrame league table for the current season
+        
         Returns:
         pd.DataFrame: Predicted table        
         """
@@ -33,10 +35,29 @@ class ModelPredict():
             fixtures = fixtures[feature_order]
             predictions = model.predict(fixtures)
             fixtures['predicted_points'] = predictions
-            fixtures[fixtures['predicted_points']==2] =  3
             logger.info('Predictions made successfully')
             fixtures.to_csv('predicted_fixtures.csv', index=False)
-            return fixtures
+
+            league_table = league_table.set_index('team')['total_points'].to_dict()
+            # print('-'*50 , league_table, '-'*50)
+            team_ids_df['predictions'] = predictions
+
+            for _, row in team_ids_df.iterrows():
+                home, away, result = row['HomeTeam'], row['AwayTeam'], row['predictions']
+                if result == 0:
+                    league_table[home] += 3
+                elif result == 2:
+                    league_table[away] += 3
+                elif result == 1:
+                    league_table[home] += 1
+                    league_table[away] += 1
+            
+            league_table = pd.DataFrame(
+                list(league_table.items()), columns=['team', 'total_points']
+            ).sort_values('total_points', ascending=False).reset_index(drop=True)
+
+            league_table.to_csv('/mnt/localdisk/Projects/Python/pl_predictor/data/predicted_league_table.csv', index=False)
+            return league_table
         except Exception as e:
             logger.error(f'Error predicting fixtures: {e}')
             raise e

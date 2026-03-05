@@ -8,7 +8,7 @@ from typing import Tuple
 logger = get_logger(__name__)
 
 @step
-def fetch_data() -> Tuple[pd.DataFrame, pd.DataFrame]:
+def fetch_data() -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """
     Method to load data from API endpoint and return a dataframe 
 
@@ -17,12 +17,13 @@ def fetch_data() -> Tuple[pd.DataFrame, pd.DataFrame]:
     Returns: 
     pd.DataFrame: Dataframe containing the data from the API for all previous matches from 2023 to 2026
     pd.DataFrame: Dataframe containing the data from the API for upcoming fixtures for the 2026 season
+    pd.DataFrame: Dataframe containing the league table for the 2026 season
     """
     try:
         extract = DataExtraction()
-        previous_matches, fixtures_df = extract.load_api()
+        previous_matches, fixtures_df, league_table = extract.load_api()
         logger.info("Loaded data from API")
-        return previous_matches, fixtures_df
+        return previous_matches, fixtures_df, league_table
     except Exception as e:
         logger.error(e)
         raise e

@@ -13,7 +13,7 @@ class DataExtraction:
     def __init__(self):
         pass
 
-    def load_api(self) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    def load_api(self) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
         """
         Method to load data from API endpoint and return a dataframe 
 
@@ -22,6 +22,7 @@ class DataExtraction:
         Returns: 
         pd.DataFrame: Dataframe containing the data from the API for all previous matches from 2023 to 2026
         pd.DataFrame: Dataframe containing the data from the API for upcoming fixtures for the 2026 season
+        pd.DataFrame: Dataframe containing the league table for the 2026 season
         """
         try:
             season_urls = {
@@ -38,6 +39,8 @@ class DataExtraction:
                 content = response.content.decode('utf-8-sig')
                 season_data = pd.read_csv(StringIO(content))
                 season_data['season'] = season
+                if season == '2026':
+                    this_season = season_data.copy()
                 previous_matches.append(season_data)
                 
             previous_matches = pd.concat(previous_matches, ignore_index=True)
@@ -49,8 +52,27 @@ class DataExtraction:
             fixtures = response.json()
             fixtures = pd.DataFrame(fixtures)
             fixtures = fixtures[fixtures['finished'] == False]
-            
-            return previous_matches, fixtures
+        
+            this_season = this_season[['HomeTeam', 'AwayTeam', 'FTR']]
+
+            points = {}
+            for _, row in this_season.iterrows():
+                home, away, result = row['HomeTeam'], row['AwayTeam'], row['FTR']
+                points.setdefault(home, 0)
+                points.setdefault(away, 0)
+                if result == 'H':
+                    points[home] += 3
+                elif result == 'A':
+                    points[away] += 3
+                elif result == 'D':
+                    points[home] += 1
+                    points[away] += 1
+
+            table = pd.DataFrame(
+                list(points.items()), columns=['team', 'total_points']
+            ).sort_values('total_points', ascending=False).reset_index(drop=True)
+
+            return previous_matches, fixtures, table
         except Exception as e:
             logger.error(e)
             raise e
