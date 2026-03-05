@@ -1,5 +1,6 @@
 supabase_password.txt
 src/.env
+.streamlit/secrets.toml
 __pycache__/
 **/__pycache__/
 *.pyc
