@@ -21,8 +21,8 @@ def make_predictions():
         X_train, X_test, Y_train, Y_test, fixtures, team_ids_df, league_table = ingest_data()
         model = train_model(X_train, Y_train)
         accuracy, precision, f1_score = evaluate_model(model, X_test, Y_test)
-        predicted_fixtures = predict_model(model, fixtures, team_ids_df, league_table)
-        upload_data(predicted_fixtures)
+        league_table, predicted_with_team_ids = predict_model(model, fixtures, team_ids_df, league_table)
+        upload_data(league_table, predicted_with_team_ids)
 
     except Exception as e:
         logger.error(e)

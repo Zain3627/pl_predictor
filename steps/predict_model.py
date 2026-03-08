@@ -1,3 +1,5 @@
+from typing import Annotated, Tuple
+
 import pandas as pd
 from zenml.logger import get_logger
 logger = get_logger(__name__)
@@ -14,7 +16,10 @@ from zenml.client import Client
 experiment_tracker = Client().active_stack.experiment_tracker
 
 @step(experiment_tracker=experiment_tracker.name)
-def predict_model(trained_model: ClassifierMixin, fixtures: pd.DataFrame, team_ids_df: pd.DataFrame, league_table: pd.DataFrame) -> pd.DataFrame:
+def predict_model(trained_model: ClassifierMixin, fixtures: pd.DataFrame, team_ids_df: pd.DataFrame, league_table: pd.DataFrame) -> Tuple[
+        Annotated [pd.DataFrame, "Predicted league table"],
+        Annotated [pd.DataFrame, "Predicted fixtures with team IDs and predictions"]
+    ]:
     """
     Method to predict upcoming fixtures using a trained model
         
@@ -25,12 +30,14 @@ def predict_model(trained_model: ClassifierMixin, fixtures: pd.DataFrame, team_i
     league_table: pd.DataFrame league table for the current season
 
     Returns: 
-    pd.DataFrame: Predicted fixtures with points
+    pd.DataFrame: Predicted league table
+    pd.DataFrame: Predicted fixtures with team IDs and predictions
+
     """
     try:
         predictor = ModelPredict()
-        predicted_fixtures = predictor.predict_matches(trained_model, fixtures, team_ids_df, league_table)
+        league_table, predicted_with_team_ids = predictor.predict_matches(trained_model, fixtures, team_ids_df, league_table)
         logger.info('Completed model prediction step')
-        return predicted_fixtures
+        return league_table, predicted_with_team_ids
     except Exception as e:
         raise e

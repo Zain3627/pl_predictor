@@ -1,3 +1,5 @@
+from typing import Annotated, Tuple
+
 import pandas as pd
 import numpy as np
 from sklearn.base import ClassifierMixin
@@ -11,7 +13,10 @@ class ModelPredict():
     """
     Class to predict the upcoming fixtures and complete the pl table.
     """
-    def predict_matches(self, model: ClassifierMixin, fixtures: pd.DataFrame, team_ids_df: pd.DataFrame, league_table: pd.DataFrame) -> pd.DataFrame:
+    def predict_matches(self, model: ClassifierMixin, fixtures: pd.DataFrame, team_ids_df: pd.DataFrame, league_table: pd.DataFrame) -> Tuple[
+        Annotated [pd.DataFrame, "Predicted league table"],
+        Annotated [pd.DataFrame, "Predicted fixtures with team IDs and predictions"]
+    ]:
         """
         Method to predict the upcoming matches and output the final league standings.
 
@@ -23,6 +28,7 @@ class ModelPredict():
         
         Returns:
         pd.DataFrame: Predicted table        
+        pd.DataFrame: Predicted fixtures with team IDs and predictions
         """
         try:
             logger.info('Predicting upcoming fixtures')
@@ -34,6 +40,9 @@ class ModelPredict():
                  'diff_avg_total_points', 'diff_avg_CS']
             fixtures = fixtures[feature_order]
             predictions = model.predict(fixtures)
+
+            predicted_with_team_ids = pd.concat([team_ids_df.reset_index(drop=True), pd.Series(predictions, name='predictions')], axis=1)
+
             fixtures['predicted_points'] = predictions
             logger.info('Predictions made successfully')
             fixtures.to_csv('predicted_fixtures.csv', index=False)
@@ -58,7 +67,7 @@ class ModelPredict():
 
             league_table.to_csv('/mnt/localdisk/Projects/Python/pl_predictor/data/predicted_league_table.csv', index=False)
 
-            return league_table
+            return league_table, predicted_with_team_ids
         except Exception as e:
             logger.error(f'Error predicting fixtures: {e}')
             raise e
