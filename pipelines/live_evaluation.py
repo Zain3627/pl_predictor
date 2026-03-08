@@ -1,6 +1,7 @@
 from zenml import pipeline, step
 from zenml.logger import get_logger
-
+from steps.data_preparation import prepare_data
+from steps.evaluate_live import evaluate_model
 logger = get_logger(__name__)
 
 @pipeline(enable_cache=False)
@@ -13,7 +14,8 @@ def live_evaluation():
     Returns: None    
     """
     try:
-        pass
+        final_result, current_predictions = prepare_data()
+        accuracy, precision, recall, f1_score = evaluate_model(final_result, current_predictions)
     except Exception as e:
         logger.error(e)
         raise e
