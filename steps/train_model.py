@@ -23,9 +23,16 @@ def train_model(X_train: pd.DataFrame, Y_train: pd.Series) -> ClassifierMixin:
     trained_model: ClassifierMixin trained model object
     """
     try:
+        mlflow.autolog(log_models=True)
         trainer = ModelTrain()
         trained_model = trainer.train(X_train, Y_train)
-        mlflow.sklearn.autolog()
+        # Log model name and training dataset size
+        mlflow.log_param('model_name', trained_model.__class__.__name__)
+        mlflow.log_param('training_samples', len(X_train))
+        mlflow.log_param('n_features', X_train.shape[1])
+        # Log all model hyperparameters explicitly
+        for param, value in trained_model.get_params().items():
+            mlflow.log_param(param, value)
         logger.info('Completed model training step')
         return trained_model
     except Exception as e:

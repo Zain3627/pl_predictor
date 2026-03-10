@@ -73,8 +73,8 @@ class DataPreparation:
                 on=['HomeTeam', 'AwayTeam'],
                 how='inner'
             )
-            final_result = None
-            current_predictions = None
+            final_result = np.array([])
+            current_predictions = np.array([])
             if not finished_with_predictions.empty:
                 finished_with_predictions.to_csv("/mnt/localdisk/Projects/Python/pl_predictor/data/finished_with_predictions.csv", index=False, encoding='utf-8')
                 final_result = np.array(finished_with_predictions['FTR'])

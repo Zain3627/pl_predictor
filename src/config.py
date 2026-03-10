@@ -7,4 +7,4 @@ class ModelNameConfig(BaseModel):
     model_name options: logistic_regression, random_forest, xgboost
     """
     
-    model_name: str = "xgboost"
+    model_name: str = "random_forest"
