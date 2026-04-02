@@ -1,7 +1,9 @@
 supabase_password.txt
 src/.env
+.streamlit
 .streamlit/secrets.toml
 __pycache__/
 **/__pycache__/
 *.pyc
 .venv.txt
+CLAUDE.md
