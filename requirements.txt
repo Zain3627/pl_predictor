@@ -1,0 +1,22 @@
+# ML
+scikit-learn==1.7.2
+xgboost==3.2.0
+mlflow==3.10.0
+
+# Pipeline orchestration
+zenml==0.93.3
+
+# Data
+pandas==2.3.3
+numpy==2.2.6
+
+# Database
+psycopg2-binary==2.9.11
+
+# Web UI
+streamlit==1.55.0
+
+# Utils
+requests==2.32.5
+pydantic==2.11.9
+python-dotenv==1.2.2
