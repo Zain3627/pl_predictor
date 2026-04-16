@@ -7,3 +7,6 @@ __pycache__/
 *.pyc
 .venv.txt
 CLAUDE.md
+.claude
+start_mlflow_server.sh
+mlflow.db

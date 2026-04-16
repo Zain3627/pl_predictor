@@ -10,20 +10,12 @@ logger = get_logger(__name__)
 
 @pipeline(enable_cache=False)
 def make_predictions():
-    """
-    Pipeline to load clean data from database, make predictions and upload to database
-
-    Args: None
-    
-    Returns: None    
-    """
     try:
         X_train, X_test, Y_train, Y_test, fixtures, team_ids_df, league_table = ingest_data()
-        model = train_model(X_train, Y_train)
-        accuracy, precision, recall, f1_score = evaluate_model(model, X_test, Y_test)
+        model, model_version = train_model(X_train, Y_train)
+        accuracy, precision, recall, f1_score = evaluate_model(model, X_test, Y_test, model_version)
         league_table, predicted_with_team_ids = predict_model(model, fixtures, team_ids_df, league_table)
         upload_data(league_table, predicted_with_team_ids)
-
     except Exception as e:
         logger.error(e)
         raise e

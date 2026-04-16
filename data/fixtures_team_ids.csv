@@ -1,73 +1,45 @@
 team_h,team_a,HomeTeam,AwayTeam
 13,8,Man City,Crystal Palace
-3,4,Burnley,Bournemouth
-17,6,Sunderland,Brighton
-1,9,Arsenal,Everton
-7,15,Chelsea,Newcastle
-19,13,West Ham,Man City
-8,11,Crystal Palace,Leeds
-14,2,Man United,Aston Villa
-16,10,Nott'm Forest,Fulham
-12,18,Liverpool,Tottenham
-5,20,Brentford,Wolves
-4,14,Bournemouth,Man United
-6,12,Brighton,Liverpool
-10,3,Fulham,Burnley
-9,7,Everton,Chelsea
-11,5,Leeds,Brentford
-15,17,Newcastle,Sunderland
-2,19,Aston Villa,West Ham
-18,16,Tottenham,Nott'm Forest
-19,20,West Ham,Wolves
-1,4,Arsenal,Bournemouth
-5,9,Brentford,Everton
-3,6,Burnley,Brighton
-8,15,Crystal Palace,Newcastle
-16,2,Nott'm Forest,Aston Villa
-12,10,Liverpool,Fulham
-17,18,Sunderland,Tottenham
-7,13,Chelsea,Man City
-14,11,Man United,Leeds
 5,10,Brentford,Fulham
-2,17,Aston Villa,Sunderland
 11,20,Leeds,Wolves
 15,4,Newcastle,Bournemouth
-16,3,Nott'm Forest,Burnley
 18,6,Tottenham,Brighton
 7,14,Chelsea,Man United
+2,17,Aston Villa,Sunderland
 9,12,Everton,Liverpool
+16,3,Nott'm Forest,Burnley
 13,1,Man City,Arsenal
 8,19,Crystal Palace,West Ham
+6,7,Brighton,Chelsea
+4,11,Bournemouth,Leeds
+3,13,Burnley,Man City
 17,16,Sunderland,Nott'm Forest
 10,2,Fulham,Aston Villa
-4,11,Bournemouth,Leeds
 12,8,Liverpool,Crystal Palace
 19,9,West Ham,Everton
 20,18,Wolves,Tottenham
 1,15,Arsenal,Newcastle
-3,13,Burnley,Man City
-6,7,Brighton,Chelsea
 14,5,Man United,Brentford
-1,10,Arsenal,Fulham
+11,3,Leeds,Burnley
 2,18,Aston Villa,Tottenham
 4,8,Bournemouth,Crystal Palace
 5,19,Brentford,West Ham
-7,16,Chelsea,Nott'm Forest
-9,13,Everton,Man City
-11,3,Leeds,Burnley
-14,12,Man United,Liverpool
 15,6,Newcastle,Brighton
 20,17,Wolves,Sunderland
+1,10,Arsenal,Fulham
+14,12,Man United,Liverpool
+7,16,Chelsea,Nott'm Forest
+9,13,Everton,Man City
+12,7,Liverpool,Chelsea
 6,20,Brighton,Wolves
 3,2,Burnley,Aston Villa
 8,9,Crystal Palace,Everton
 10,4,Fulham,Bournemouth
-12,7,Liverpool,Chelsea
+17,14,Sunderland,Man United
 13,5,Man City,Brentford
 16,15,Nott'm Forest,Newcastle
-18,11,Tottenham,Leeds
-17,14,Sunderland,Man United
 19,1,West Ham,Arsenal
+18,11,Tottenham,Leeds
 1,3,Arsenal,Burnley
 2,12,Aston Villa,Liverpool
 4,13,Bournemouth,Man City

@@ -1,0 +1,45 @@
+artifact_path: /mnt/localdisk/Projects/Python/pl_predictor/mlruns/1/models/m-c24b13c7b235447781893225cd6128fd/artifacts
+flavors:
+  python_function:
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.sklearn
+    model_path: model.pkl
+    predict_fn: predict
+    python_version: 3.10.19
+  sklearn:
+    code: null
+    pickled_model: model.pkl
+    serialization_format: cloudpickle
+    sklearn_version: 1.7.2
+    skops_trusted_types: null
+is_signature_from_type_hint: false
+mlflow_version: 3.10.0
+model_id: m-c24b13c7b235447781893225cd6128fd
+model_size_bytes: 5257009
+model_uuid: m-c24b13c7b235447781893225cd6128fd
+prompts: null
+run_id: e2df5444b71145ffaf564dcaf9363390
+signature:
+  inputs: '[{"type": "long", "name": "HTP", "required": true}, {"type": "long", "name":
+    "ATP", "required": true}, {"type": "double", "name": "home_avg_FTHG", "required":
+    true}, {"type": "double", "name": "home_avg_HS", "required": true}, {"type": "double",
+    "name": "home_avg_HST", "required": true}, {"type": "double", "name": "home_avg_HC",
+    "required": true}, {"type": "double", "name": "home_avg_HP", "required": true},
+    {"type": "double", "name": "home_avg_HCS", "required": true}, {"type": "double",
+    "name": "away_avg_FTAG", "required": true}, {"type": "double", "name": "away_avg_AS",
+    "required": true}, {"type": "double", "name": "away_avg_AST", "required": true},
+    {"type": "double", "name": "away_avg_AC", "required": true}, {"type": "double",
+    "name": "away_avg_AP", "required": true}, {"type": "double", "name": "away_avg_ACS",
+    "required": true}, {"type": "double", "name": "H_golas/shot", "required": true},
+    {"type": "double", "name": "A_goals/shot", "required": true}, {"type": "double",
+    "name": "home_avg_HP_squared", "required": true}, {"type": "double", "name": "away_avg_AP_squared",
+    "required": true}, {"type": "double", "name": "diff_avg_FTHG", "required": true},
+    {"type": "double", "name": "diff_avg_points", "required": true}, {"type": "long",
+    "name": "diff_avg_total_points", "required": true}, {"type": "double", "name":
+    "diff_avg_CS", "required": true}]'
+  outputs: '[{"type": "tensor", "tensor-spec": {"dtype": "int64", "shape": [-1]}}]'
+  params: null
+type_hint_from_example: false
+utc_time_created: '2026-04-16 18:33:33.252925'
