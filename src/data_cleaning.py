@@ -89,8 +89,8 @@ class DataCleaning:
             'home_avg_FTHG', 'home_avg_HS', 'home_avg_HST', 'home_avg_HC', 'home_avg_HP', 'home_avg_HCS', 'H_golas/shot', 'home_avg_HP_squared', 'season', 'HomeTeam', 'FTR', 'HTP'
         ], axis=1, inplace=True)
 
-        home_snapshot.to_csv("/mnt/localdisk/Projects/Python/pl_predictor/data/home_snapshot.csv", index=False)
-        away_snapshot.to_csv("/mnt/localdisk/Projects/Python/pl_predictor/data/away_snapshot.csv", index=False)
+        # home_snapshot.to_csv("/mnt/localdisk/Projects/Python/pl_predictor/data/home_snapshot.csv", index=False)
+        # away_snapshot.to_csv("/mnt/localdisk/Projects/Python/pl_predictor/data/away_snapshot.csv", index=False)
         data.drop(['HomeTeam', 'AwayTeam'], axis=1, inplace=True)       
         
         # fixtures data
@@ -113,7 +113,7 @@ class DataCleaning:
         fixtures = fixtures.merge(away_snapshot, how='left', left_on='AwayTeam', right_on='AwayTeam')
         fixtures.drop(['HomeTeam', 'AwayTeam'], axis=1, inplace=True)
 
-        data.to_csv("/mnt/localdisk/Projects/Python/pl_predictor/data/averaged_previous_matches.csv", index=False)
+        # data.to_csv("/mnt/localdisk/Projects/Python/pl_predictor/data/averaged_previous_matches.csv", index=False)
         Y = data['FTR']
         Y = Y.map({'H': 0, 'D': 1, 'A': 2})
         X = data.drop('FTR', axis=1)
@@ -131,9 +131,9 @@ class DataCleaning:
         X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=27, stratify=X['season'])
         X_train.drop('season', axis=1, inplace=True)
         X_test.drop('season', axis=1, inplace=True)
-        X_train.to_csv("/mnt/localdisk/Projects/Python/pl_predictor/data/X_train.csv", index=False)
-        fixtures.to_csv("/mnt/localdisk/Projects/Python/pl_predictor/data/upcoming_fixtures.csv", index=False, encoding='utf-8')
+        # X_train.to_csv("/mnt/localdisk/Projects/Python/pl_predictor/data/X_train.csv", index=False)
+        # fixtures.to_csv("/mnt/localdisk/Projects/Python/pl_predictor/data/upcoming_fixtures.csv", index=False, encoding='utf-8')
         
-        fixtures.to_csv("/mnt/localdisk/Projects/Python/pl_predictor/data/fixtures_no_teams.csv", index=False, encoding='utf-8')
-        team_ids_df.to_csv("/mnt/localdisk/Projects/Python/pl_predictor/data/fixtures_team_ids.csv", index=False)
+        # fixtures.to_csv("/mnt/localdisk/Projects/Python/pl_predictor/data/fixtures_no_teams.csv", index=False, encoding='utf-8')
+        # team_ids_df.to_csv("/mnt/localdisk/Projects/Python/pl_predictor/data/fixtures_team_ids.csv", index=False)
         return X_train, X_test, Y_train, Y_test, fixtures, team_ids_df

@@ -65,7 +65,7 @@ class ModelPredict():
                 list(league_table.items()), columns=['team', 'total_points']
             ).sort_values('total_points', ascending=False).reset_index(drop=True)
 
-            league_table.to_csv('/mnt/localdisk/Projects/Python/pl_predictor/data/predicted_league_table.csv', index=False)
+            # league_table.to_csv('/mnt/localdisk/Projects/Python/pl_predictor/data/predicted_league_table.csv', index=False)
 
             return league_table, predicted_with_team_ids
         except Exception as e:

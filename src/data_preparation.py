@@ -76,7 +76,7 @@ class DataPreparation:
             final_result = np.array([])
             current_predictions = np.array([])
             if not finished_with_predictions.empty:
-                finished_with_predictions.to_csv("/mnt/localdisk/Projects/Python/pl_predictor/data/finished_with_predictions.csv", index=False, encoding='utf-8')
+                # finished_with_predictions.to_csv("/mnt/localdisk/Projects/Python/pl_predictor/data/finished_with_predictions.csv", index=False, encoding='utf-8')
                 final_result = np.array(finished_with_predictions['FTR'])
                 current_predictions = np.array(finished_with_predictions['predictions'])
 
