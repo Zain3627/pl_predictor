@@ -10,3 +10,4 @@ CLAUDE.md
 .claude
 mlflow.db
 mlruns/
+start_mlflow_server.sh
