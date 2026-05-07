@@ -1,148 +1,263 @@
 # Premier League Predictor
 
-A machine learning project that predicts Premier League match outcomes and final league standings using historical match data. Built with [ZenML](https://zenml.io/) pipelines and tracked with [MLflow](https://mlflow.org/).
+A machine learning project that predicts Premier League match outcomes and final league standings using historical match data. Orchestrated with [ZenML](https://zenml.io/), tracked with [MLflow](https://mlflow.org/), and deployed on AWS EC2 with automated weekly evaluation.
 
 ## Overview
 
-This project fetches historical Premier League match data (2023–2026 seasons) and upcoming fixture data from external APIs, engineers features from match statistics, trains a classification model, and predicts the results of remaining fixtures to produce a projected final league table.
+This project fetches historical Premier League match data and upcoming fixture data from external APIs, engineers features from match statistics, trains a classification model, predicts the results of remaining fixtures to produce a projected final league table, and evaluates live predictions against real results on a weekly schedule.
 
 **Supported models** (configurable in `src/config.py`):
 - Logistic Regression
 - Random Forest
 - XGBoost (default)
 
+---
+
 ## Project Structure
 
 ```
 pl_predictor/
 │
-├── run_fetch_data_pipeline.py      # Entry point – runs the data fetching pipeline
-├── run_make_predictions.py         # Entry point – runs the predictions pipeline
+├── run_fetch_data_pipeline.py        # Entry point – fetch & clean data
+├── run_make_predictions.py           # Entry point – train, evaluate, predict
+├── run_live_evaluation_pipeline.py   # Entry point – evaluate live predictions
+├── streamlit_app.py                  # Web UI
 │
-├── pipelines/                      # ZenML pipeline definitions
-│   ├── data_fetching.py            #   Fetch → Clean → Upload pipeline
-│   └── make_predictions.py         #   Ingest → Train → Evaluate → Predict pipeline
+├── Dockerfile.pipelines              # Docker image for all three pipelines
 │
-├── steps/                          # ZenML step definitions (thin wrappers around src/)
-│   ├── fetch_data.py               #   Fetches raw data from APIs
-│   ├── clean_data.py               #   Cleans and feature-engineers the data
-│   ├── upload_data.py              #   Uploads processed data to PostgreSQL
-│   ├── ingest_data.py              #   Reads processed data from PostgreSQL
-│   ├── train_model.py              #   Trains the selected classifier
-│   ├── evaluate_model.py           #   Evaluates model (Accuracy, Precision, F1)
-│   └── predict_model.py            #   Predicts upcoming fixtures & builds league table
+├── scripts/
+│   ├── setup_zenml.sh                # Registers ZenML stack at container runtime
+│   ├── pipelineswrapper.sh           # Runs all three pipelines sequentially
+│   └── start_mlflow_server.sh        # Starts MLflow server on EC2 (port 60300)
 │
-├── src/                            # Core business logic
-│   ├── config.py                   #   Model configuration (Pydantic)
-│   ├── data_extraction.py          #   Loads match & fixture data from APIs
-│   ├── data_cleaning.py            #   Feature engineering & train/test split
-│   ├── data_upload.py              #   Uploads DataFrames to PostgreSQL (Supabase)
-│   ├── data_ingest.py              #   Reads clean data from PostgreSQL (Supabase)
-│   ├── model_train.py              #   Model training logic
-│   ├── model_evaluation.py         #   Evaluation strategies (Strategy pattern)
-│   ├── model_predict.py            #   Match prediction & league table projection
-│   └── .env                        #   Database credentials (not committed)
+├── pipelines/                        # ZenML pipeline definitions
+│   ├── data_fetching.py
+│   ├── make_predictions.py
+│   └── live_evaluation.py
 │
-├── data/                           # Local CSV artefacts
-│   ├── previous_matches.csv
-│   ├── upcoming_fixtures.csv
-│   ├── home_snapshot.csv
-│   ├── away_snapshot.csv
-│   ├── averaged_previous_matches.csv
-│   ├── fixtures_no_teams.csv
-│   ├── fixtures_team_ids.csv
-│   ├── predicted_league_table.csv
-│   └── X_train.csv
+├── steps/                            # ZenML step definitions
+│   ├── fetch_data.py
+│   ├── clean_data.py
+│   ├── upload_data.py
+│   ├── ingest_data.py
+│   ├── train_model.py
+│   ├── evaluate_model.py
+│   ├── predict_model.py
+│   ├── data_preparation.py
+│   └── evaluate_live.py
 │
-├── .gitignore
-└── LICENSE
+├── src/                              # Core business logic
+│   ├── config.py
+│   ├── data_extraction.py
+│   ├── data_cleaning.py
+│   ├── data_upload.py
+│   ├── data_ingest.py
+│   ├── model_train.py
+│   ├── model_evaluation.py
+│   ├── model_predict.py
+│   ├── live_evaluation.py
+│   └── .env                          # Credentials (not committed)
+│
+└── data/                             # Local CSV artefacts
 ```
+
+---
 
 ## Pipelines
 
 ### 1. Data Fetching (`run_fetch_data_pipeline.py`)
-
 ```
 fetch_data → clean_data → upload_data
 ```
-
-| Step | Description |
-|------|-------------|
-| **fetch_data** | Pulls historical match CSVs from football-data.co.uk and upcoming fixtures from the Fantasy Premier League API. Also builds the current league table. |
-| **clean_data** | Drops irrelevant columns, computes rolling averages (goals, shots, corners, clean sheets, points), creates interaction features, and performs a train/test split. |
-| **upload_data** | Writes processed DataFrames to a PostgreSQL database (Supabase). |
+Scrapes historical match CSVs and upcoming fixtures, engineers rolling features, and uploads to PostgreSQL.
 
 ### 2. Make Predictions (`run_make_predictions.py`)
-
 ```
-ingest_data → train_model → evaluate_model → predict_model
+ingest_data → train_model → evaluate_model → predict_model → upload_data
 ```
+Trains the classifier, logs metrics to MLflow, sets the `@champion` alias on the best model, predicts upcoming fixtures, and projects the final league table.
 
-| Step | Description |
-|------|-------------|
-| **ingest_data** | Reads the cleaned datasets back from PostgreSQL. |
-| **train_model** | Trains the model specified in `src/config.py` (default: XGBoost). Logged with MLflow. |
-| **evaluate_model** | Evaluates on the test set using Accuracy, Precision, and F1 Score. Metrics are logged to MLflow. |
-| **predict_model** | Predicts outcomes for remaining fixtures and produces the projected final league table. |
+### 3. Live Evaluation (`run_live_evaluation_pipeline.py`)
+```
+prepare_data → evaluate_model
+```
+Loads previously predicted vs actual results for played matches and computes accuracy, precision, recall, and F1. Used by the automated cron job to decide whether retraining is needed.
+
+---
 
 ## Tech Stack
 
-- **Python 3.10**
-- **ZenML** – ML pipeline orchestration
-- **MLflow** – Experiment tracking
+- **Python 3.11**
+- **ZenML 0.93.3** – ML pipeline orchestration & dashboard (port 8080)
+- **MLflow 3.10.0** – Experiment tracking, model registry & UI (port 60300)
 - **scikit-learn / XGBoost** – Model training & evaluation
 - **pandas / NumPy** – Data manipulation
 - **psycopg2** – PostgreSQL connectivity
 - **Pydantic** – Configuration validation
-- **Supabase (PostgreSQL)** – Cloud database for storing processed data
+- **Streamlit** – Web UI
+- **Supabase (PostgreSQL)** – Cloud database for processed data & MLflow backend
+- **AWS ECR** – Docker image registry
+- **AWS EC2** – Cloud deployment
+- **AWS S3** – MLflow artifact storage
+- **Docker** – Containerisation
 
-## Setup
+---
 
-1. **Clone the repository**
-   ```bash
-   git clone <repo-url>
-   cd pl_predictor
-   ```
+## Local Development Setup
 
-2. **Create and activate a virtual environment**
-   ```bash
-   python -m venv .venv
-   source .venv/bin/activate
-   ```
+### 1. Clone and create virtual environment
+```bash
+git clone <repo-url>
+cd pl_predictor
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+```
 
-3. **Install dependencies**
-   ```bash
-   pip install zenml mlflow scikit-learn xgboost pandas numpy psycopg2-binary pydantic python-dotenv requests
-   ```
+### 2. Configure credentials
+Create `src/.env`:
+```
+DB_USER=...
+DB_PASSWORD=...
+DB_HOST=...
+DB_PORT=...
+DB_NAME=...
+MLFLOW_TRACKING_URI=postgresql://<user>:<password>@<host>:<port>/<dbname>
+```
 
-4. **Configure ZenML & MLflow**
-   ```bash
-   zenml init
-   zenml integration install mlflow -y
-   zenml experiment-tracker register mlflow_tracker --flavor=mlflow
-   zenml stack register ml_stack -a default -o default -e mlflow_tracker --set
-   ```
+### 3. Initialise ZenML
+```bash
+zenml init
+zenml experiment-tracker register mlflow_tracker \
+  --flavor=mlflow \
+  --tracking_uri="${MLFLOW_TRACKING_URI}"
+zenml stack register pipeline_stack -o default -a default -e mlflow_tracker --set
+```
 
-5. **Set up environment variables**  
-   Create `src/.env` with your Supabase/PostgreSQL credentials:
-   ```
-   user=<db_user>
-   password=<db_password>
-   host=<db_host>
-   port=<db_port>
-   dbname=<db_name>
-   ```
-
-## Usage
-
-**Fetch and prepare data:**
+### 4. Run pipelines
 ```bash
 python run_fetch_data_pipeline.py
-```
-
-**Train model and predict:**
-```bash
 python run_make_predictions.py
+python run_live_evaluation_pipeline.py
 ```
 
-The predicted league table is saved to `data/predicted_league_table.csv`.
+### 5. Launch dashboards (optional)
+```bash
+# ZenML dashboard
+zenml up --port 8080
+
+# MLflow UI
+bash scripts/start_mlflow_server.sh
+```
+
+---
+
+## Docker Deployment
+
+### Build the image
+```bash
+docker build -f Dockerfile.pipelines -t pl_predictor_pipelines .
+```
+
+### Run locally
+```bash
+docker run \
+  --env-file src/.env \
+  -p 8080:8080 \
+  pl_predictor_pipelines
+```
+
+The container:
+1. Registers the ZenML stack (reads `MLFLOW_TRACKING_URI` from env)
+2. Starts the ZenML dashboard server on port 8080
+3. Runs all three pipelines sequentially via `pipelineswrapper.sh`
+
+Override CMD to run a single pipeline:
+```bash
+docker run --env-file src/.env pl_predictor_pipelines \
+  python run_live_evaluation_pipeline.py
+```
+
+---
+
+## AWS Deployment
+
+### Push image to ECR
+```bash
+# Authenticate
+aws ecr get-login-password --region eu-north-1 \
+  | docker login --username AWS --password-stdin \
+    <account-id>.dkr.ecr.eu-north-1.amazonaws.com
+
+# Tag and push
+docker tag pl_predictor_pipelines:latest \
+  <account-id>.dkr.ecr.eu-north-1.amazonaws.com/pl_predictor_pipelines:latest
+
+docker push <account-id>.dkr.ecr.eu-north-1.amazonaws.com/pl_predictor_pipelines:latest
+```
+
+### Run on EC2
+```bash
+# Authenticate Docker to ECR on the instance
+aws ecr get-login-password --region eu-north-1 \
+  | sudo docker login --username AWS --password-stdin \
+    <account-id>.dkr.ecr.eu-north-1.amazonaws.com
+
+# Pull and run
+sudo docker pull <account-id>.dkr.ecr.eu-north-1.amazonaws.com/pl_predictor_pipelines:latest
+
+sudo docker run \
+  --env-file ~/src/.env \
+  -p 8080:8080 \
+  <account-id>.dkr.ecr.eu-north-1.amazonaws.com/pl_predictor_pipelines:latest
+```
+
+EC2 Security Group must have inbound TCP rules open for ports **8080** (ZenML) and **60300** (MLflow).
+
+---
+
+## Automated Weekly Evaluation (Cron Job)
+
+A Python cron script (`~/cron_job.py` on EC2) runs every Tuesday at 1 AM. It:
+1. Re-authenticates to ECR
+2. Pulls the latest image
+3. Runs the live evaluation pipeline and parses the accuracy
+4. If accuracy < 0.5, automatically triggers a full retraining pipeline run
+
+```bash
+# Add to crontab (on EC2)
+export TERM=xterm-256color
+crontab -e
+# Add:
+0 1 * * 2 python3 /home/ec2-user/cron_job.py >> /home/ec2-user/pipeline.log 2>&1
+```
+
+---
+
+## MLflow Server on EC2
+
+The MLflow tracking server runs on EC2 with PostgreSQL as the backend store and S3 for artifact storage.
+
+```bash
+# One-time setup
+python3.11 -m venv ~/mlflow-env
+source ~/mlflow-env/bin/activate
+pip install mlflow==3.10.0 psycopg2-binary boto3
+
+# Start server
+bash ~/start_mlflow_server.sh
+```
+
+Dashboard available at: `http://<ec2-public-ip>:60300`
+
+**Required AWS permissions for EC2 instance role:**
+- `AmazonEC2ContainerRegistryReadOnly` – pull images from ECR
+- S3 read/write on the artifacts bucket – for MLflow artifact storage
+
+---
+
+## Model Registry
+
+Models are registered in MLflow under the name `pl-predictor`. After each training run:
+- A new version is registered and tagged with its test accuracy
+- The version with the highest accuracy across all runs receives the `@champion` alias
+- `predict_model` always loads `models:/pl-predictor@champion`
