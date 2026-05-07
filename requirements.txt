@@ -4,7 +4,13 @@ xgboost==3.2.0
 mlflow==3.10.0
 
 # Pipeline orchestration
-zenml==0.93.3
+zenml[server]==0.93.3
+sqlalchemy-utils
+alembic
+passlib[bcrypt]
+bcrypt
+PyJWT
+python-multipart
 
 # Data
 pandas==2.3.3

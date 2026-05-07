@@ -1,0 +1,25 @@
+FROM python:3.11-slim
+
+WORKDIR /app  
+
+RUN apt-get update && apt-get install -y libpq-dev gcc && rm -rf /var/lib/apt/lists/*  
+
+COPY requirements.txt .
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+WORKDIR /app
+
+COPY src/ src/
+COPY steps/ steps/
+COPY pipelines/ pipelines/
+COPY run_fetch_data_pipeline.py run_make_predictions.py run_live_evaluation_pipeline.py setup_zenml.sh pipelineswrapper.sh ./
+
+RUN chmod +x setup_zenml.sh  
+RUN chmod +x pipelineswrapper.sh  
+RUN zenml init
+
+EXPOSE 8080
+
+ENTRYPOINT ["bash", "-c", "./setup_zenml.sh && exec \"$@\"", "--"]
+CMD ["bash", "./pipelineswrapper.sh"]
